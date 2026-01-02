@@ -4,6 +4,9 @@
   "description": "Sistema de RPG e Batalha automatizado para Discord, com temática de pirataria, focado na comunidade do servidor.",
   "main": "index.js",
   "scripts": {
+    "dev": "nodemon --exec ts-node src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -13,11 +16,20 @@
     "canvas": "^3.2.0",
     "discord.js": "^14.25.1",
     "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.45.1",
     "pg": "^8.16.3"
   },
   "devDependencies": {
     "@types/node": "^25.0.3",
+    "@types/pg": "^8.16.0",
+    "@typescript-eslint/eslint-plugin": "^8.51.0",
+    "@typescript-eslint/parser": "^8.51.0",
+    "drizzle-kit": "^0.31.8",
+    "eslint": "^9.39.2",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-prettier": "^5.5.4",
     "nodemon": "^3.1.11",
+    "prettier": "^3.7.4",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }

@@ -1,0 +1,87 @@
+import { Client, Collection, REST, Routes } from "discord.js";
+import fs from "fs";
+import path from "path";
+import { Command, Event } from "../types";
+
+// Extender a interface do Client para incluir a coleção de comandos
+declare module "discord.js" {
+    interface Client {
+        commands: Collection<string, Command>;
+    }
+}
+
+export async function loadCommands(client: Client) {
+    client.commands = new Collection();
+    const commandsPath = path.join(__dirname, "../commands");
+
+    if (!fs.existsSync(commandsPath)) return;
+
+    const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
+
+    for (const file of commandFiles) {
+        const filePath = path.join(commandsPath, file);
+        const commandModule = await import(filePath);
+        const command = commandModule.default;
+
+        if (command && command.data && command.execute) {
+            client.commands.set(command.data.name, command);
+            console.log(`[CMD] Loaded ${command.data.name}`);
+        } else {
+            console.warn(`[CMD] The command at ${filePath} is missing a required "data" or "execute" property.`);
+        }
+    }
+}
+
+export async function registerCommands(client: Client) {
+    const commands = [];
+    const commandsPath = path.join(__dirname, "../commands");
+
+    if (!fs.existsSync(commandsPath)) return;
+
+    const commandFiles = fs.readdirSync(commandsPath).filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
+
+    for (const file of commandFiles) {
+        const filePath = path.join(commandsPath, file);
+        const command: Command = (await import(filePath)).default;
+        if (command && command.data) {
+            commands.push(command.data.toJSON());
+        }
+    }
+
+    const rest = new REST().setToken(process.env.DISCORD_TOKEN!);
+
+    try {
+        console.log(`Started refreshing ${commands.length} application (/) commands.`);
+
+        // Use applicationCommands for global updates or separate guild config during dev
+        // For now, using global
+        await rest.put(
+            Routes.applicationCommands(process.env.CLIENT_ID!),
+            { body: commands },
+        );
+
+        console.log(`Successfully reloaded application (/) commands.`);
+    } catch (error) {
+        console.error(error);
+    }
+}
+
+export async function loadEvents(client: Client) {
+    const eventsPath = path.join(__dirname, "../events");
+
+    if (!fs.existsSync(eventsPath)) return;
+
+    const eventFiles = fs.readdirSync(eventsPath).filter((file) => file.endsWith(".ts") || file.endsWith(".js"));
+
+    for (const file of eventFiles) {
+        const filePath = path.join(eventsPath, file);
+        const event: Event<any> = (await import(filePath)).default;
+
+        if (event.once) {
+            client.once(event.name, (...args) => event.execute(...args));
+        } else {
+            client.on(event.name, (...args) => event.execute(...args));
+        }
+        console.log(`[EVENT] Loaded ${event.name}`);
+    }
+}
