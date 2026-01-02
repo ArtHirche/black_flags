@@ -35,14 +35,11 @@ const command: Command = {
         const logs = battle.simulate();
         const winner = battle.winner;
 
-        // Simple text based output for now
-        // TODO: Use Canvas to render the battle
         const logText = logs.map(l => `[T${l.turn}] ${l.message}`).join("\n");
         const resultText = winner
             ? `\n🏆 **Vencedor:** ${winner.name} com ${winner.hp} HP restantes!`
             : "\nEmpate (Limite de turnos atingido)!";
 
-        // Discord message limit is 2000 chars, truncate if needed
         const finalMessage = `⚔️ **Batalha: ${p1.name} vs ${p2.name}**\n\n${logText}\n${resultText}`;
 
         if (finalMessage.length > 2000) {

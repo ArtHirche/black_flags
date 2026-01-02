@@ -22,9 +22,7 @@ async function main() {
 
 main().catch(console.error);
 
-// Register commands on ready (or use a separate script, here doing it in ready event is safer or manually)
 client.once("ready", async () => {
     console.log(`Logged in as ${client.user?.tag}!`);
-    // Uncomment to register/update commands on startup (careful with rate limits)
     await registerCommands(client);
 });

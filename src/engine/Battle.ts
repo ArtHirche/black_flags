@@ -1,7 +1,7 @@
 import { RNG } from "./RNG";
 
 export interface IBattleFighter {
-    id: string; // User ID
+    id: string;
     name: string;
     avatarUrl: string;
     hp: number;
@@ -43,11 +43,6 @@ export class Battle {
         const attacker = this.fighters[attackerIdx];
         const defender = this.fighters[defenderIdx];
 
-        // Cálculo básico de dano
-        // Dano = (Atk * Variância) - (Def * 0.5)
-        // Mínimo de 1 dano
-
-        // Critical hit (10% chance - criar atributo de sorte depois?)
         const isCrit = RNG.chance(10);
         const critMultiplier = isCrit ? 1.5 : 1.0;
 
@@ -80,7 +75,7 @@ export class Battle {
     }
 
     public simulate(): IBattleLog[] {
-        while (!this.winner && this.turn < 100) { // Safety break
+        while (!this.winner && this.turn < 100) {
             this.nextTurn();
         }
         return this.logs;

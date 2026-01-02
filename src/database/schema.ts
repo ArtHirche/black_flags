@@ -1,16 +1,14 @@
 import { pgTable, text, integer, serial, timestamp, boolean } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-// Tabela de Usuários (Jogadores)
 export const users = pgTable("users", {
-    id: text("id").primaryKey(), // Discord ID
+    id: text("id").primaryKey(),
     coins: integer("coins").default(0).notNull(),
     wins: integer("wins").default(0).notNull(),
     loses: integer("loses").default(0).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
-// Tabela de Personagens Base (Ex: Pirata, Marujo, Capitao)
 export const characters = pgTable("characters", {
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
@@ -20,7 +18,6 @@ export const characters = pgTable("characters", {
     imageUrl: text("image_url"),
 });
 
-// Tabela de Skins (Modificadores Visuais e de Status)
 export const skins = pgTable("skins", {
     id: serial("id").primaryKey(),
     characterId: integer("character_id").references(() => characters.id),
@@ -29,10 +26,9 @@ export const skins = pgTable("skins", {
     modifierDef: integer("modifier_def").default(0).notNull(),
     modifierHp: integer("modifier_hp").default(0).notNull(),
     imageUrl: text("image_url").notNull(),
-    rarity: text("rarity").default("common").notNull(), // common, rare, epic, legendary
+    rarity: text("rarity").default("common").notNull(),
 });
 
-// Relacionamento N:N entre Usuários e Skins (Inventário)
 export const userSkins = pgTable("user_skins", {
     id: serial("id").primaryKey(),
     userId: text("user_id").references(() => users.id).notNull(),
@@ -41,7 +37,6 @@ export const userSkins = pgTable("user_skins", {
     obtainedAt: timestamp("obtained_at").defaultNow().notNull(),
 });
 
-// Relações para Drizzle Queries
 export const usersRelations = relations(users, ({ many }) => ({
     skins: many(userSkins),
 }));

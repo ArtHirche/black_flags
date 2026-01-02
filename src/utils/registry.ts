@@ -3,7 +3,6 @@ import fs from "fs";
 import path from "path";
 import { Command, Event } from "../types";
 
-// Extender a interface do Client para incluir a coleção de comandos
 declare module "discord.js" {
     interface Client {
         commands: Collection<string, Command>;
@@ -53,8 +52,6 @@ export async function registerCommands(client: Client) {
     try {
         console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-        // Use applicationCommands for global updates or separate guild config during dev
-        // For now, using global
         await rest.put(
             Routes.applicationCommands(process.env.CLIENT_ID!),
             { body: commands },
