@@ -1,6 +1,7 @@
 import { Client, Collection, REST, Routes } from "discord.js";
 import fs from "fs";
 import path from "path";
+import { pathToFileURL } from "url";
 import { Command, Event } from "../types";
 
 declare module "discord.js" {
@@ -19,7 +20,7 @@ export async function loadCommands(client: Client) {
 
     for (const file of commandFiles) {
         const filePath = path.join(commandsPath, file);
-        const commandModule = await import(filePath);
+        const commandModule = await import(pathToFileURL(filePath).href);
         const command = commandModule.default;
 
         if (command && command.data && command.execute) {
@@ -41,7 +42,8 @@ export async function registerCommands(client: Client) {
 
     for (const file of commandFiles) {
         const filePath = path.join(commandsPath, file);
-        const command: Command = (await import(filePath)).default;
+        const commandModule = await import(pathToFileURL(filePath).href);
+        const command = commandModule.default;
         if (command && command.data) {
             commands.push(command.data.toJSON());
         }
@@ -72,7 +74,8 @@ export async function loadEvents(client: Client) {
 
     for (const file of eventFiles) {
         const filePath = path.join(eventsPath, file);
-        const event: Event<any> = (await import(filePath)).default;
+        const eventModule = await import(pathToFileURL(filePath).href);
+        const event: Event<any> = eventModule.default;
 
         if (event.once) {
             client.once(event.name, (...args) => event.execute(...args));
