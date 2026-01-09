@@ -54,12 +54,23 @@ export async function registerCommands(client: Client) {
     try {
         console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
-        await rest.put(
-            Routes.applicationCommands(process.env.CLIENT_ID!),
-            { body: commands },
-        );
+        const guildId = process.env.GUILD_ID || client.guilds.cache.first()?.id;
 
-        console.log(`Successfully reloaded application (/) commands.`);
+        if (guildId) {
+            console.log(`Registering commands to guild: ${guildId} (Auto-detected or from Env)`);
+            await rest.put(
+                Routes.applicationGuildCommands(process.env.CLIENT_ID!, guildId),
+                { body: commands },
+            );
+            console.log(`Successfully reloaded application (/) commands for guild.`);
+        } else {
+            console.log('Registering commands globally (this may take up to an hour to propagate).');
+            await rest.put(
+                Routes.applicationCommands(process.env.CLIENT_ID!),
+                { body: commands },
+            );
+            console.log(`Successfully reloaded application (/) commands globally.`);
+        }
     } catch (error) {
         console.error(error);
     }
